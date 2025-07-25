@@ -12,6 +12,32 @@ A modern Flutter application for sending money, managing wallets, viewing transa
 - Android Studio or VS Code
 - Device or emulator
 
+
+## 📱 App Screenshots
+
+| ![Onboarding](assets/onboarding.png) | ![Login](assets/login.png) |
+|:-----------------------------------:|:---------------------------:|
+| **Onboarding Screen**               | **Login Screen**           |
+
+| ![Signup](assets/signup.png) | ![Home](assets/home.png) |
+|:---------------------------:|:------------------------:|
+| **Signup Screen**           | **Home Screen**          |
+
+| ![Send](assets/send.png) | ![Send Confirmation](assets/send2.png) |
+|:------------------------:|:--------------------------------------:|
+| **Send Money**           | **Send Confirmation**                  |
+
+| ![Lock](assets/lock.png) | ![Profile](assets/profile.png) |
+|:------------------------:|:------------------------------:|
+| **App Lock Screen**      | **User Profile**               |
+
+| ![Extra](assets/ex.png) |
+|:-----------------------:|
+| **Extras / Example**    |
+
+
+
+
 ### Clone the repo
 ```bash
 git clone https://github.com/yourusername/send_money_app.git
