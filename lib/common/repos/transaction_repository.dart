@@ -29,7 +29,7 @@ class TransactionRepository {
       throw Exception("Sender wallet not found");
     }
     //2 covert amount to wallet currency
-    final convertedAmount = await exchangeRepository.convertCurrency(fromCurrency: walletCurrency, toCurrency: currency, amount: amount);
+    final convertedAmount = await exchangeRepository.convertCurrency(fromCurrency: currency, toCurrency: walletCurrency, amount: amount);
 
     if(convertedAmount==null){
       throw Exception("Transaction Rate Not Found");
@@ -46,7 +46,7 @@ class TransactionRepository {
       // 2. Deduct balance from wallet
       await txn.update(
         'wallets',
-        {'balance': currentBalance - amount},
+        {'balance': currentBalance - convertedAmount},
         where: 'user_id = ? AND currency = ?',
         whereArgs: [senderUserId, walletCurrency],
       );
@@ -57,7 +57,7 @@ class TransactionRepository {
         recipient: recipient,
         bank: bank,
         accountNo: accountNo,
-        amount: amount,
+        amount: convertedAmount,
         currency: currency,
         timestamp: DateTime.now().toIso8601String(),
       );

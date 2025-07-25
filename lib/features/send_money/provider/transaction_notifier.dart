@@ -56,4 +56,15 @@ class TransactionNotifier extends FamilyAsyncNotifier<TransactionState,UserModel
       state = AsyncValue.error(e, stackTrace);
     }
   }
+
+  Future<void>refresh()async{
+    state=const AsyncValue.loading();
+    state = AsyncValue.data(
+      TransactionState(
+        wallet: await repository.getWalletByUserId(arg.id, arg.currency),
+        transactions:await repository.getTransactionsForUser(arg.id),
+      ),
+    );
+
+  }
 }

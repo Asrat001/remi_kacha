@@ -22,28 +22,33 @@ class HomeScreen extends ConsumerWidget{
     final authState = ref.read(authProvider);
     final user=authState.user;
     final transactionState=ref.watch(transactionProvider(user!));
-    final wallet=transactionState.whenData((data) => data.wallet);
+
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          SliverPadding(
-            padding: const EdgeInsets.all(20),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate(
-                [
-                  const SizedBox(height: 15),
-                  _buildHeader(user.name),
-                  const SizedBox(height: 15),
-                   _buildBalanceCard(wallet.value,ref),
-                  const SizedBox(height: 20),
-                  _buildIncomeOutcomeCard(wallet.value,ref)
-                ],
+      body: RefreshIndicator(
+        onRefresh: () async {
+          ref.read(transactionProvider(user).notifier).refresh();
+        },
+        child: CustomScrollView(
+          slivers: [
+            SliverPadding(
+              padding: const EdgeInsets.all(20),
+              sliver: SliverList(
+                delegate: SliverChildListDelegate(
+                  [
+                    const SizedBox(height: 15),
+                    _buildHeader(user.name),
+                    const SizedBox(height: 15),
+                     _buildBalanceCard(transactionState,ref),
+                    const SizedBox(height: 20),
+                    _buildIncomeOutcomeCard()
+                  ],
+                ),
               ),
             ),
-          ),
-          _buildSectionHeader("Transactions", "See All", () {}),
-          _buildTransactionsList(transactionState),
-        ],
+            _buildSectionHeader("Transactions", "See All", () {}),
+            _buildTransactionsList(transactionState),
+          ],
+        ),
       ),
     );
   }
@@ -77,7 +82,7 @@ class HomeScreen extends ConsumerWidget{
     );
   }
 
-  Widget _buildBalanceCard(Wallet? wallet,WidgetRef ref) {
+  Widget _buildBalanceCard(AsyncValue<TransactionState> txState,WidgetRef ref) {
     final isVisible = ref.watch(balanceLockProvider);
     final lockNotifier = ref.read(balanceLockProvider.notifier);
 
@@ -123,29 +128,42 @@ class HomeScreen extends ConsumerWidget{
                         color: Colors.white,
                       ),
                     ),
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    isVisible
-                        ? "${NumberUtils.formatCompact(wallet!.balance)} ${wallet.currency}"
-                        : "*********",
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w300,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-                IconButton(
-                  icon: Icon(
-                    isVisible ? Icons.visibility_off : Icons.visibility,
-                    color: Colors.white70,
-                  ),
-                  onPressed: lockNotifier.toggle,
-                ),
-              ],
-            )
+                   txState.when(data: (data){
+                     final wallet=data.wallet;
+                     if(wallet==null){
+                       return Text("Refresh to see balance");
+                     }
+                    return Row(
+                       children: [
+                         Expanded(
+                           child: Text(
+                             isVisible
+                                 ? "${NumberUtils.formatCompact(wallet.balance)} ${wallet.currency}"
+                                 : "*********",
+                             style: TextStyle(
+                               fontSize: 24,
+                               fontWeight: FontWeight.w300,
+                               color: Colors.white,
+                             ),
+                           ),
+                         ),
+                         IconButton(
+                           icon: Icon(
+                             isVisible ? Icons.visibility_off : Icons.visibility,
+                             color: Colors.white70,
+                           ),
+                           onPressed: lockNotifier.toggle,
+                         ),
+                       ],
+                     );
+                   },
+                    error: (error,stackTrace){
+                     return Text("error loading balance");
+                    },
+                       loading: (){
+                     return CircularProgressIndicator();
+                       }
+                   )
                   ],
                 ),
                 InkWell(
@@ -188,7 +206,7 @@ class HomeScreen extends ConsumerWidget{
     );
   }
 
-  Widget _buildIncomeOutcomeCard(Wallet? wallet,WidgetRef ref ) {
+  Widget _buildIncomeOutcomeCard() {
     return Container(
       width: double.maxFinite,
       height: 80,
@@ -323,7 +341,7 @@ class HomeScreen extends ConsumerWidget{
                     name: transaction.recipient,
                     price: transaction.amount.toStringAsFixed(2),
                     description:
-                    "${transaction.bank ?? ''} • ${transaction.accountNo ?? ''}",
+                    "${transaction.bank ?? ''} / ID ${transaction.id ?? ''}",
                     bgColor: Colors.orange,
                     nameImage: 'desktop',
                     time: transaction.timestamp,

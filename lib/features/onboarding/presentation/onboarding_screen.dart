@@ -8,7 +8,7 @@ import 'package:remi_kacha/ui/widgets/rounded_button.dart';
 
 class OnboardingScreen extends StatefulWidget {
   final VoidCallback onFinish;
-  const OnboardingScreen({Key? key, required this.onFinish}) : super(key: key);
+  const OnboardingScreen({super.key, required this.onFinish});
 
   @override
   State<OnboardingScreen> createState() => _OnboardingScreenState();

@@ -54,7 +54,7 @@ class BuildTransactionItem extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      name,
+                      "To ${name}",
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
